@@ -6,7 +6,7 @@
 
 import tensorflow as tf
 
-from nst import NSTGO
+from nstnet import NSTNetwork
 from utils import CONTENT_LAYERS, INPUT_PATH, INPUT_URL, Picture, STYLE_LAYERS, STYLE_PATH, \
     STYLE_URL, gram_matrix, vgg_layers
 
@@ -24,8 +24,8 @@ class StyleContentModel(tf.keras.models.Model):
     def call(self, inputs, training=None, mask=None):
         """Expects float input in (0, 1)"""
         inputs = inputs * 255.0
-        preproccesed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
-        outputs = self.__network(preproccesed_input)
+        preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
+        outputs = self.__network(preprocessed_input)
         style_outputs, content_outputs = (
             outputs[:self.__num_style_layers], outputs[self.__num_style_layers:])
         style_outputs = [gram_matrix(style_output) for style_output in style_outputs]
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     style_pic.load()
     style_image = style_pic.content
 
-    nst = NSTGO(content_pic, style_pic)
+    nst = NSTNetwork(content_pic, style_pic)
     extractor = StyleContentModel()
     results = extractor(tf.constant(content_pic.content))
     print('Styles:')
@@ -68,3 +68,4 @@ if __name__ == '__main__':
         print("    min: ", output.numpy().min())
         print("    max: ", output.numpy().max())
         print("    mean: ", output.numpy().mean())
+
